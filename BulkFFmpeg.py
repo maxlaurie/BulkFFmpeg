@@ -40,8 +40,6 @@ def banner():
     print(f"       Max Laurie v{version}                   |_|         |___/ ")
 
 
-
-
 def get_input_folder():
     input_folder = ""
     while os.path.isdir(input_folder) is False:
