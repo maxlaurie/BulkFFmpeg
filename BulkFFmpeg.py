@@ -3,7 +3,7 @@ version = "1.0"
 # Max Laurie 07/07/2022
 
 # Simple bulk FFmpeg command script
-# Asks for a folder and then loops through the filetype(s) specified performing the command on line 113/114
+# Asks for a folder and then loops through the filetype(s) specified performing the command on line 111/112
 
 import os
 import sys
