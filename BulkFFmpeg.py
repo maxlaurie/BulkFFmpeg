@@ -1,14 +1,13 @@
 # BulkFFmpeg.py
-version = "1.1"
+version = "1.2"
 # Max Laurie 14/07/2022
 
 # Simple bulk FFmpeg command script
 # Asks for a command, a folder and then loops through the filetype(s) specified performing the command
 
-# 1.1 changelog
-# Reworked to allow user input for command arguments and desired file wrapper
-# Added unreachable/permissions error message to get_input_folder function
-# Changed output command to include and print error messages
+# 1.2 changelog
+# Files that failed but still created a 0kb file were being falsely labelled successful transcodes
+# Added a secondary check on line 135 so output files under 10kb are flagged as failed
 
 import os
 import sys
@@ -99,7 +98,7 @@ def filetype_check(file, filetype):
 
 def script_exit(exitText):
     print("\n" + exitText)
-    input("Press enter to exit...")
+    input("Press enter to exit...\n")
     sys.exit()
 
 
@@ -133,7 +132,7 @@ def main():
         print(f"\nProcessing {i}/{len(input_files)} - {file}")
         ffmpeg_command(command_part_one, command_part_two, file, output_file)
 
-        if os.path.isfile(output_file):
+        if os.path.isfile(output_file) and os.path.getsize(output_file) > 10000:
             print("Done!")
             files_complete.append("MADE - " + output_file)
         else:
