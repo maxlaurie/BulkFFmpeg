@@ -1,13 +1,13 @@
 # BulkFFmpeg.py
-version = "1.2"
-# Max Laurie 14/07/2022
+version = "1.3"
+# Max Laurie 25/07/2022
 
 # Simple bulk FFmpeg command script
 # Asks for a command, a folder and then loops through the filetype(s) specified performing the command
 
-# 1.2 changelog
-# Files that failed but still created a 0kb file were being falsely labelled successful transcodes
-# Added a secondary check on line 135 so output files under 10kb are flagged as failed
+# 1.3 changelog
+# Auto removes a 'failed' transcode if it fails the size check on line 144
+# Split the printed list of processed files on script completion in to 'complete' and 'failed'
 
 import os
 import sys
@@ -120,12 +120,21 @@ def ffmpeg_command(command_part_one, command_part_two, input_file, output_file):
     os.system(f'{command_part_one} "{input_file}" {command_part_two} "{output_file}"')
 
 
+def list_files(list_title, list_of_files):
+    if len(list_of_files) != 0:
+        print("\n" + list_title)
+        for file in list_of_files:
+            print(file)
+    else:
+        return
+
+
 def main():
     command_part_one, command_part_two, desired_ext = get_ffmpeg_command()
     input_folder = get_input_folder()
     input_files = get_files_to_work_on(input_folder)
 
-    files_complete, i = [], 1
+    files_complete, files_failed, i = [], [], 1
     for file in input_files:
         output_file = return_available_filename(file, desired_ext)
 
@@ -134,16 +143,18 @@ def main():
 
         if os.path.isfile(output_file) and os.path.getsize(output_file) > 10000:
             print("Done!")
-            files_complete.append("MADE - " + output_file)
+            files_complete.append(output_file)
         else:
             print("Failed :(")
-            files_complete.append("FAIL - " + output_file)
+            files_failed.append(file)
+            try:
+                os.remove(output_file)
+            except FileNotFoundError:
+                pass
         i += 1
 
-    print("\nFiles processed:")
-    for file in files_complete:
-        print(file)
-
+    list_files("Files made:", files_complete)
+    list_files("Files failed:", files_failed)
     script_exit("All done!")
 
 
